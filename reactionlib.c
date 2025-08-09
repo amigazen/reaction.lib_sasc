@@ -73,6 +73,46 @@ struct {
 	struct Library
 			**Base;
 } libs[] = {
+#ifdef __GNUC__
+	/* GCC format to avoid "near initialization" warnings */
+	{(STRPTR)"window.class",				40L, &WindowBase},
+	{(STRPTR)"requester.class",				42L, &RequesterBase},
+	{(STRPTR)"gadgets/layout.gadget",		40L, &LayoutBase},
+	{(STRPTR)"gadgets/listbrowser.gadget",	40L, &ListBrowserBase},
+	{(STRPTR)"gadgets/slider.gadget",		40L, &SliderBase},
+	{(STRPTR)"gadgets/scroller.gadget",		40L, &ScrollerBase},
+	{(STRPTR)"gadgets/radiobutton.gadget",	40L, &RadioButtonBase},
+	{(STRPTR)"gadgets/texteditor.gadget",	15L, &TextEditorBase},
+	{(STRPTR)"gadgets/space.gadget", 		40L, &SpaceBase},
+	{(STRPTR)"gadgets/clicktab.gadget",		40L, &ClickTabBase},
+	{(STRPTR)"gadgets/string.gadget",		40L, &StringBase},
+	{(STRPTR)"gadgets/getfile.gadget",		40L, &GetFileBase},
+	{(STRPTR)"gadgets/getfont.gadget",		40L, &GetFontBase},
+	{(STRPTR)"gadgets/getscreenmode.gadget", 40L, &GetScreenModeBase},
+	{(STRPTR)"gadgets/integer.gadget",		40L, &IntegerBase},
+	{(STRPTR)"gadgets/chooser.gadget",		40L, &ChooserBase},
+	{(STRPTR)"gadgets/button.gadget",		40L, &ButtonBase},
+	{(STRPTR)"gadgets/checkbox.gadget",		40L, &CheckBoxBase},
+	{(STRPTR)"gadgets/fuelgauge.gadget",	40L, &FuelGaugeBase},
+	{(STRPTR)"gadgets/palette.gadget",		40L, &PaletteBase},
+	{(STRPTR)"images/label.image",			40L, &LabelBase},
+	{(STRPTR)"images/penmap.image",			40L, &PenmapBase},
+	{(STRPTR)"images/bitmap.image",			40L, &BitmapBase},
+	{(STRPTR)"images/glyph.image",			40L, &GlyphBase},
+	{(STRPTR)"images/bevel.image",			40L, &BevelBase},
+	{(STRPTR)"gadgets/calendar.gadget",		40L, &CalendarBase},
+	{(STRPTR)"gadgets/colorwheel.gadget",	40L, &ColorWheelBase},
+	{(STRPTR)"gadgets/datebrowser.gadget",	40L, &DateBrowserBase},
+	{(STRPTR)"gadgets/drawlist.gadget",		40L, &DrawListBase},
+	{(STRPTR)"gadgets/gradientslider.gadget", 40L, &GradientSliderBase},
+	{(STRPTR)"gadgets/led.gadget",			40L, &LedBase},
+	{(STRPTR)"gadgets/speedbar.gadget",		40L, &SpeedBarBase},
+	{(STRPTR)"gadgets/statusbar.gadget",	40L, &StatusbarBase},
+	{(STRPTR)"gadgets/tabs.gadget",			40L, &TabsBase},
+	{(STRPTR)"gadgets/tapedeck.gadget",		40L, &TapeDeckBase},
+	{(STRPTR)"gadgets/textfield.gadget",	40L, &TextFieldBase},
+#else
+	/* SAS/C format */
 	"window.class",					40L, &WindowBase,
 	"requester.class",				42L, &RequesterBase,
 	"gadgets/layout.gadget",		40L, &LayoutBase,
@@ -109,6 +149,7 @@ struct {
 	"gadgets/tabs.gadget",			40L, &TabsBase,
 	"gadgets/tapedeck.gadget",		40L, &TapeDeckBase,
 	"gadgets/textfield.gadget",		40L, &TextFieldBase,
+#endif
 };
 
 VOID EXIT_3_ReActionLibs( VOID )
@@ -143,12 +184,12 @@ VOID INIT_3_ReActionLibs( VOID )
 
 #endif
 
-/* SAS/C auto-initialization pragmas */
+/* Compiler-specific auto-initialization */
 #ifdef __SASC
+/* SAS/C auto-initialization functions */
 void __regargs __chkabort(void) {}  /* Disable Ctrl-C checking */
 void __regargs _CXBRK(void) {}      /* Disable break checking */
 
-/* Auto-initialization functions */
 void __stdargs _STI_399_ReActionLibs(void)
 {
     INIT_3_ReActionLibs();
@@ -159,6 +200,11 @@ void __stdargs _STD_399_ReActionLibs(void)
     EXIT_3_ReActionLibs();
 }
 
+#elif defined(__GNUC__)
+/* GCC: No auto-initialization - user must call INIT_3_ReActionLibs() manually */
+/* This avoids the complexity of constructor/destructor attributes in GCC 2.95.3 */
+
+/* If using libnix and you need to disable any ctrl-c checking, put it here*/
 #endif
 
 /****************************************************************************/

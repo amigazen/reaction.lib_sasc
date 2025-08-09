@@ -49,11 +49,16 @@ Each component of **ToolKit** is open source and like *reaction.lib_sasc* here w
 
 ## Installation
 
+### For SAS/C Users
 - Build with `smake` to create reaction.lib
 - Copy reaction.lib to SDK/lib/ using `smake install`
 - Manually copy the contents of SDK/ to your ToolKit SDK: location
-- Include the library in your projects with `#include <clib/reaction_lib_protos.h>` which is found in the NDK3.2
-- Link with `sc LINK LIB reaction.lib your_program.c`
+
+### For GCC Users
+- Build with `make` to create libreaction.a
+- Install system-wide with `make install-system`
+- Or install locally with `make install`
+- Or copy libreaction.a to libnix/lib/
 
 ## Description
 
@@ -90,6 +95,110 @@ Automatically opens and manages all ReAction libraries:
 - Calendar.gadget, ColorWheel.gadget, DateBrowser.gadget
 - And 19 more ReAction components
 
+## Usage
+
+### SAS/C Development
+
+#### Building Your Project
+```bash
+# Compile and link with reaction.lib
+sc LINK LIB reaction.lib your_program.c
+```
+
+#### In Your Code
+```c
+#include <clib/reaction_lib_protos.h>
+```
+
+### GCC Development
+
+#### Building Your Project
+```bash
+# Compile and link with libreaction.a
+m68k-amigaos-gcc -noixemul -lamiga -lreaction your_program.c
+```
+
+#### In Your Code
+```c
+#include <clib/reaction_lib_protos.h>
+
+int main()
+{
+#ifndef __amigaos4__
+    /* Manual initialization required for OS3 */
+    INIT_3_ReActionLibs();
+#endif
+    
+    /* Your ReAction GUI code here */
+    
+#ifndef __amigaos4__
+    /* Manual cleanup required for OS3 */
+    EXIT_3_ReActionLibs();
+#endif
+    
+    return 0;
+}
+```
+
+### Cross-Platform Code
+
+For code that works with both compilers and OS versions:
+
+```c
+#include <clib/reaction_lib_protos.h>
+
+void init_reaction_libs(void)
+{
+#if defined(__GNUC__) && !defined(__amigaos4__)
+    /* GCC on OS3 requires manual initialization */
+    INIT_3_ReActionLibs();
+#endif
+    /* SAS/C and OS4 handle this automatically */
+}
+
+void cleanup_reaction_libs(void)
+{
+#if defined(__GNUC__) && !defined(__amigaos4__)
+    /* GCC on OS3 requires manual cleanup */
+    EXIT_3_ReActionLibs();
+#endif
+    /* SAS/C and OS4 handle this automatically */
+}
+
+int main()
+{
+    init_reaction_libs();
+    
+    /* Your ReAction GUI code here */
+    
+    cleanup_reaction_libs();
+    return 0;
+}
+```
+
+### Available Functions
+
+All functions from the original reaction.lib prototype are available:
+
+- **ListBrowser**: `LBAddNodeA()`, `LBAddNode()`, `LBEditNodeA()`, `LBEditNode()`, `LBRemNode()`
+- **ClickTab**: `ClickTabsA()`, `ClickTabs()`, `FreeClickTabs()`
+- **Browser**: `BrowserNodesA()`, `BrowserNodes()`, `FreeBrowserNodes()`
+- **Chooser**: `ChooserLabelsA()`, `ChooserLabels()`, `FreeChooserLabels()`
+- **RadioButton**: `RadioButtonsA()`, `RadioButtons()`, `FreeRadioButtons()`
+- **Utilities**: `GetAttrsA()`, `GetAttrs()`, `GetCode()`
+- **Gadget Methods**: `LibDoGadgetMethodA()`, `LibDoGadgetMethod()`
+- **Layout Windows**: `OpenLayoutWindowTagList()`, `OpenLayoutWindowTags()`
+- **Refresh**: `RefreshSetGadgetAttrsA()`, `RefreshSetGadgetAttrs()`, `RefreshSetPageGadgetAttrsA()`, `RefreshSetPageGadgetAttrs()`
+
+### Compiler Differences
+
+| Feature | SAS/C | GCC |
+|---------|-------|-----|
+| Library Name | `reaction.lib` | `libreaction.a` |
+| Auto-Init | ✓ Automatic | ✗ Manual required |
+| Build Tool | `smake` | `make` |
+| Link Flags | `LIB reaction.lib` | `-lreaction` |
+
 ## ChangeLog
 
 - **Adapted for GCC by amigazen project
@@ -105,3 +214,4 @@ Automatically opens and manages all ReAction libraries:
 ## Acknowledgements
 
 *Amiga* is a trademark of **Amiga Inc**.  
+EAB user alpyre for their GCC specific patches here https://eab.abime.net/showpost.php?p=1280146&postcount=13
