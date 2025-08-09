@@ -1,0 +1,31 @@
+# SMakefile for ReAction Library Wrapper
+# Build with SAS/C
+
+TARGET = reaction.lib
+OBJS = reactionlib.o
+
+CFLAGS = DATA=NEAR CODE=NEAR PARAMETERS=REGISTERS NOSTACKCHECK COMMENTNEST \
+         STRUCTUREEQUIVALENCE OPTIMIZE NOICONS MAP NOVERSION UTILITYLIBRARY \
+         INCLUDEDIR=include:
+
+# Default rule
+all: $(TARGET)
+
+# Build the library
+$(TARGET): $(OBJS)
+	oml $(TARGET) r $(OBJS)
+	@echo "Library built successfully"
+
+# Compile C source
+.c.o:
+	sc $(CFLAGS) OBJNAME=$@ $<
+
+# Clean up
+clean:
+	-delete $(OBJS) $(TARGET)
+
+# Install to system library directory  
+install: $(TARGET)
+	copy $(TARGET) SDK/lib/$(TARGET)
+
+.PHONY: all clean install
