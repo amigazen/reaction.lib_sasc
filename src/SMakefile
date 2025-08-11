@@ -26,6 +26,6 @@ clean:
 
 # Install to system library directory  
 install: $(TARGET)
-	copy $(TARGET) SDK/lib/$(TARGET)
+	copy $(TARGET) /SDK/lib/$(TARGET)
 
 .PHONY: all clean install
